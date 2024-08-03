@@ -1,6 +1,6 @@
 body {
   font-family: Arial, sans-serif;
-  background-color: #f4f4f4;
+  background-color: #726ca1;
   margin: 0;
   padding: 0;
   display: flex;
@@ -16,7 +16,6 @@ body {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Ajoutez ces styles en plus du code précédent */
 form {
   display: flex;
   margin-bottom: 20px;
@@ -120,7 +119,6 @@ li.completed {
   cursor: pointer;
 }
 
-/* Styles pour le formulaire dans la modale */
 #edit-form {
   display: flex;
   flex-direction: column;
@@ -128,4 +126,38 @@ li.completed {
 
 #edit-form input {
   margin-bottom: 10px;
+}
+/* Styles pour la fenêtre pop-up */
+.popup {
+  display: none; /* Caché par défaut */
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 20%;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.close-btn:hover {
+  color: red;
 }

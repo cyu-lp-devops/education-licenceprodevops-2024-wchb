@@ -5,6 +5,14 @@ document.addEventListener("DOMContentLoaded", function () {
   const startDateInput = document.getElementById("start-date");
   const endDateInput = document.getElementById("end-date");
 
+  // Références pour la fenêtre pop-up
+  const editPopup = document.getElementById("edit-popup");
+  const editForm = document.getElementById("edit-form");
+  const editTaskTitle = document.getElementById("edit-task-title");
+  const editStartDate = document.getElementById("edit-start-date");
+  const editEndDate = document.getElementById("edit-end-date");
+  let currentTaskId = null;
+
   // Fonction pour formater les dates en jj/mm/aaaa
   function formatDate(dateString) {
     const date = new Date(dateString);
@@ -50,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const editButtons = document.querySelectorAll(".edit-btn");
         editButtons.forEach((button) => {
-          button.addEventListener("click", editTask);
+          button.addEventListener("click", openEditPopup);
         });
       })
       .catch((error) => {
@@ -93,35 +101,76 @@ document.addEventListener("DOMContentLoaded", function () {
       });
   }
 
-  // Fonction pour modifier une tâche
-  function editTask(event) {
+  // Fonction pour ouvrir la fenêtre pop-up de modification
+  function openEditPopup(event) {
     const taskId = event.target.getAttribute("data-id");
-    const taskTitle = prompt("Modifier le titre de la tâche :");
-    const taskStartDate = prompt("Modifier la date de début (YYYY-MM-DD) :");
-    const taskEndDate = prompt("Modifier la date de fin (YYYY-MM-DD) :");
+    const taskItem = event.target.closest("li");
+    const title = taskItem.querySelector("strong").textContent;
+    const startDate = taskItem
+      .querySelector("br:nth-child(2)")
+      .nextSibling.textContent.split(": ")[1];
+    const endDate = taskItem
+      .querySelector("br:nth-child(3)")
+      .nextSibling.textContent.split(": ")[1];
 
-    if (taskTitle && taskStartDate && taskEndDate) {
-      fetch(`http://localhost:3000/tasks/${taskId}`, {
+    // Remplir les champs du formulaire avec les valeurs actuelles
+    editTaskTitle.value = title;
+
+    // Convertir la date de format jj/mm/aaaa à aaaa-mm-jj (format ISO pour les champs de type date)
+    const [startDay, startMonth, startYear] = startDate.split("/");
+    const [endDay, endMonth, endYear] = endDate.split("/");
+
+    const isoStartDate = `${startYear}-${startMonth}-${startDay}`;
+    const isoEndDate = `${endYear}-${endMonth}-${endDay}`;
+
+    editStartDate.value = isoStartDate;
+    editEndDate.value = isoEndDate;
+
+    // Stocker l'ID de la tâche en cours de modification
+    currentTaskId = taskId;
+
+    // Afficher la pop-up
+    editPopup.style.display = "flex";
+  }
+
+  // Fonction pour fermer la fenêtre pop-up
+  function closeEditPopup() {
+    editPopup.style.display = "none";
+    currentTaskId = null;
+  }
+
+  // Fonction pour soumettre les modifications de la tâche
+  editForm.addEventListener("submit", function (event) {
+    event.preventDefault();
+
+    if (currentTaskId) {
+      fetch(`http://localhost:3000/tasks/${currentTaskId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          title: taskTitle,
-          startDate: taskStartDate,
-          endDate: taskEndDate,
+          title: editTaskTitle.value,
+          startDate: editStartDate.value,
+          endDate: editEndDate.value,
         }),
       })
         .then(() => {
           fetchTasks(); // Recharger la liste après modification
+          closeEditPopup(); // Fermer la pop-up
         })
         .catch((error) => {
           console.error("Erreur:", error);
         });
     }
-  }
+  });
 
-  // Gestionnaire d'événement pour le formulaire
+  // Gestionnaire d'événement pour fermer la pop-up lorsque l'utilisateur clique sur la croix
+  document
+    .querySelector(".close-btn")
+    .addEventListener("click", closeEditPopup);
+
+  // Gestionnaire d'événement pour le formulaire d'ajout de tâche
   taskForm.addEventListener("submit", function (event) {
     event.preventDefault(); // Empêcher le rechargement de la page
     const taskTitle = taskInput.value.trim();
