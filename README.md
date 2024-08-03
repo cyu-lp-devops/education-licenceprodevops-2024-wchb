@@ -67,7 +67,7 @@ docker build -t to-do-list .
 Pour démarrer l'application dans un conteneur Docker, utilisez la commande suivante :
 
 ```bash
-docker run -p 3000:3000 my-node-app
+docker run -p 3000:3000 to-do-list
 ```
 
 ### 3. Accéder à l'application
